@@ -1,0 +1,147 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "chi-swagger example APIs",
+        "title": "chi-swagger example APIs",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/{channel}": {
+            "get": {
+                "description": "get messages for channel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get messages for channel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "channel",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pagination limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/entities.Hook"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "post message",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "post message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "channel",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "message",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "primitive"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "fail requests until timestamp",
+                        "name": "failUntil",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete channel",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "delete channel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "channel",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.Hook": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "failed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

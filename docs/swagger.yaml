@@ -1,0 +1,98 @@
+basePath: /
+definitions:
+  entities.Hook:
+    properties:
+      channel:
+        type: string
+      created_at:
+        type: integer
+      failed:
+        type: boolean
+      id:
+        type: string
+      payload:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: chi-swagger example APIs
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: chi-swagger example APIs
+  version: "1.0"
+paths:
+  /api/{channel}:
+    delete:
+      consumes:
+      - application/json
+      description: delete channel
+      parameters:
+      - description: name
+        in: path
+        name: channel
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+      summary: delete channel
+    get:
+      consumes:
+      - application/json
+      description: get messages for channel
+      parameters:
+      - description: name
+        in: path
+        name: channel
+        required: true
+        type: string
+      - description: pagination offset
+        in: query
+        name: offset
+        type: integer
+      - description: pagination limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/entities.Hook'
+              type: array
+            type: array
+      summary: get messages for channel
+    post:
+      consumes:
+      - application/json
+      description: post message
+      parameters:
+      - description: name
+        in: path
+        name: channel
+        required: true
+        type: string
+      - description: message
+        in: body
+        name: message
+        required: true
+        schema:
+          type: primitive
+      - description: fail requests until timestamp
+        in: query
+        name: failUntil
+        type: integer
+      responses:
+        "200":
+          description: ""
+      summary: post message
+swagger: "2.0"
