@@ -21,4 +21,5 @@ Websockets url: ws://localhost:8080/ws/{channel}
  - publish message to go channel used as queue
  - notification module read messages from queue and send them via websockets to subscribers
  - repository module read messages from queue and store them in redis
- - api endpoints available for getting messages for specific channel and deleting channel data
+ - api endpoints available for get and delete operations for messages stored in redis for specific channel
+ - websocket subscription option available to check incoming messages
