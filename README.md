@@ -13,8 +13,8 @@ service to listen for webhooks persisting to redis
     make start
 ```
 
-Swagger will be available at localhost:8080/swagger/
-Websockets url: ws://localhost:8080/ws/{channel}
+Swagger will be available at localhost:8080/swagger/  
+Websockets url: ws://localhost:8080/ws/{channel}  
 
 ## How it works
  - subscribes to http post requests to http://localhost:8080/api/{channel}
