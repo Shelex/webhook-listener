@@ -17,8 +17,8 @@ type Notification struct {
 	router *melody.Melody
 }
 
-func New(queue *gochannel.GoChannel) (*Notification, error) {
-	messages, err := queue.Subscribe(context.Background(), "webhooks")
+func New(channel *gochannel.GoChannel) (*Notification, error) {
+	messages, err := channel.Subscribe(context.Background(), "webhooks")
 	if err != nil {
 		return nil, errors.New("failed to subscribe for messages")
 	}

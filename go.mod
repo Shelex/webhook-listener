@@ -10,6 +10,7 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/mileusna/crontab v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/swaggo/http-swagger v1.1.2
 	github.com/swaggo/swag v1.7.6

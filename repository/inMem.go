@@ -43,3 +43,22 @@ func (i inMem) Delete(channel string) error {
 	delete(i.hooks, channel)
 	return nil
 }
+
+func (i inMem) ClearExpired() error {
+	expired := GetExpiryDate()
+
+	for channel, hooks := range i.hooks {
+		deleted := 0
+		for index := range hooks {
+			j := index - deleted
+			if hooks[j].Created_at <= expired {
+				i.hooks[channel] = hooks[:j+copy(hooks[j:], hooks[j+1:])]
+				deleted += 1
+			}
+		}
+		if len(i.hooks[channel]) == 0 {
+			delete(i.hooks, channel)
+		}
+	}
+	return nil
+}

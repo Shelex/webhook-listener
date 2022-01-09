@@ -22,3 +22,7 @@ prof:
 .PHONY: doc
 doc:
 	swag init
+
+.PHONY: lint
+lint: 
+	golangci-lint run

@@ -5,17 +5,19 @@ import (
 
 	"github.com/Shelex/webhook-listener/notification"
 	"github.com/Shelex/webhook-listener/repository"
+	"github.com/Shelex/webhook-listener/scheduler"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/go-chi/chi"
 )
 
 type App struct {
-	Queue        *gochannel.GoChannel
+	PubSub       *gochannel.GoChannel
 	Repository   repository.Storage
 	Router       *chi.Mux
 	Notification *notification.Notification
 	Logger       watermill.LoggerAdapter
+	Cron         *scheduler.Scheduler
 }
 
 func NewApp() (*App, error) {
@@ -47,11 +49,14 @@ func NewApp() (*App, error) {
 
 	router := ProvideRouter()
 
+	cron := scheduler.NewScheduler()
+
 	return &App{
-		Queue:        pubSub,
+		PubSub:       pubSub,
 		Repository:   storage,
 		Router:       router,
 		Notification: notification,
 		Logger:       logger,
+		Cron:         cron,
 	}, nil
 }

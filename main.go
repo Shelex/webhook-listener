@@ -41,6 +41,9 @@ func main() {
 	api.RegisterControllers(app)
 	api.RegisterSwagger(app)
 
+	// clear expired items at 0 min every third hour
+	app.Cron.Schedule("0 */3 * * *", app.Repository.ClearExpired)
+
 	httpSubscriber, err := api.RegisterHttpListener(app, *httpAddr)
 	if err != nil {
 		log.Fatal(err)
@@ -50,6 +53,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//app.ServeWeb()
 
 	go messageRouter.Run(context.Background())
 	<-messageRouter.Running()

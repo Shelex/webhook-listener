@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
 	"time"
 
 	"github.com/Shelex/webhook-listener/entities"
@@ -33,13 +35,22 @@ func NewRedis() (Storage, error) {
 
 func (r *Redis) Add(hook entities.Hook) error {
 	hook.Created_at = time.Now().UTC().Unix()
-	return r.client.LPush(ctx, hook.Channel, hook).Err()
+	return r.client.ZAddNX(ctx, hook.Channel, &redis.Z{
+		Score:  float64(hook.Created_at),
+		Member: hook,
+	}).Err()
 }
 
 func (r *Redis) Get(channel string, pagination Pagination) ([]entities.Hook, int64, error) {
-	endIndex := pagination.Offset + pagination.Limit - 1
+	minTime := strconv.Itoa(int(GetExpiryDate()))
 
-	keys, err := r.client.LRange(ctx, channel, pagination.Offset, endIndex).Result()
+	keys, err := r.client.ZRangeByScore(ctx, channel, &redis.ZRangeBy{
+		Offset: pagination.Offset,
+		Count:  pagination.Limit,
+		Min:    minTime,
+		Max:    "+inf",
+	}).Result()
+
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to read items for channel %s, %s", channel, err)
 
@@ -47,7 +58,8 @@ func (r *Redis) Get(channel string, pagination Pagination) ([]entities.Hook, int
 
 	hooks := make([]entities.Hook, len(keys))
 
-	count, err := r.client.LLen(ctx, channel).Result()
+	count, err := r.client.ZCount(ctx, channel, minTime, "+inf").Result()
+
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get count for channel %s, %s", channel, err)
 	}
@@ -63,4 +75,40 @@ func (r *Redis) Get(channel string, pagination Pagination) ([]entities.Hook, int
 
 func (r *Redis) Delete(channel string) error {
 	return r.client.Unlink(ctx, channel).Err()
+}
+
+func (r *Redis) ClearExpired() error {
+	log.Println("[redis-clear] clearing expired items")
+	expiryDate := strconv.Itoa(int(GetExpiryDate()))
+	iter := r.client.ScanType(ctx, 0, "*", 1000, "zset").Iterator()
+	keysToRemove := make([]string, 0)
+
+	for iter.Next(ctx) {
+		channel := iter.Val()
+		log.Printf("[redis-clear] checking channel: %s", channel)
+		err := r.client.ZRemRangeByScore(ctx, channel, "-inf", expiryDate).Err()
+		if err != nil {
+			log.Printf("experienced error while clearing channel %s: %s", channel, err)
+		}
+		count, err := r.client.ZCount(ctx, channel, "-inf", "+inf").Result()
+		if err != nil {
+			log.Printf("experienced error while checking count for channel %s: %s", channel, err)
+		}
+		log.Printf("[redis-clear] channel %s has %d non-expired records", channel, count)
+		if count == 0 {
+			log.Printf("[redis-clear] channel %s will be removed", channel)
+			keysToRemove = append(keysToRemove, channel)
+		}
+	}
+	if err := iter.Err(); err != nil {
+		return err
+	}
+
+	// clear empty keys
+	if len(keysToRemove) > 0 {
+		log.Printf("[redis-clear] found %d empty channels to remove: %v", len(keysToRemove), keysToRemove)
+		return r.client.Unlink(ctx, keysToRemove...).Err()
+	}
+
+	return nil
 }

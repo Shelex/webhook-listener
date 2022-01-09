@@ -27,13 +27,13 @@ func RouteMessages(app *app.App, subscriber *http.Subscriber) (*message.Router, 
 		return nil, fmt.Errorf("failed to create message handler: %s", err)
 	}
 
-	// POST route from http subscriber to queue
+	// POST route from http subscriber to publisher (channel)
 	messageHandler.AddHandler(
 		"http_to_channel", // name for debug
 		"/api/{channel}",  // route
 		subscriber,
 		"webhooks", // topic
-		app.Queue,
+		app.PubSub,
 		func(msg *message.Message) ([]*message.Message, error) {
 			return []*message.Message{msg}, nil
 		},

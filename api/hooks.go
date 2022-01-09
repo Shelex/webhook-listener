@@ -74,5 +74,5 @@ func RegisterControllers(app *app.App) {
 	controller := Controller{app}
 	app.Router.Get("/api/{channel}", controller.getMessages)
 	app.Router.Delete("/api/{channel}", controller.deleteMessages)
-	app.Router.Get("/ws/{channel}", app.Notification.Handle)
+	app.Router.Get("/listen/{channel}", app.Notification.Handle)
 }
