@@ -54,8 +54,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//app.ServeWeb()
-
 	go messageRouter.Run(context.Background())
 	<-messageRouter.Running()
 

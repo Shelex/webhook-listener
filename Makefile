@@ -26,3 +26,11 @@ doc:
 .PHONY: lint
 lint: 
 	golangci-lint run
+
+.PHONY: web-dev
+web-dev: 
+	cd web && npm start
+
+.PHONY: web-build
+web-build: 
+	cd web && npm build
