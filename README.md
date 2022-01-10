@@ -14,8 +14,14 @@ service to listen for webhooks persisting to redis
     make start
 ```
 
+```bash
+# start webpage
+    make web-dev
+```
+
 Swagger will be available at localhost:8080/swagger/  
-Websockets url: ws://localhost:8080/listen/{channel}
+Websockets url: ws://localhost:8080/listen/{channel}  
+Webpage url: localhost:8080/
 
 ## How it works
 
