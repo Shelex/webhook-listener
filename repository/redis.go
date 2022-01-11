@@ -44,7 +44,7 @@ func (r *Redis) Add(hook entities.Hook) error {
 func (r *Redis) Get(channel string, pagination Pagination) ([]entities.Hook, int64, error) {
 	minTime := strconv.Itoa(int(GetExpiryDate()))
 
-	keys, err := r.client.ZRangeByScore(ctx, channel, &redis.ZRangeBy{
+	keys, err := r.client.ZRevRangeByScore(ctx, channel, &redis.ZRangeBy{
 		Offset: pagination.Offset,
 		Count:  pagination.Limit,
 		Min:    minTime,
