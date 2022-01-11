@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./App.css";
-import { FaRedo, FaCheck, FaExclamationTriangle } from "react-icons/fa";
+import { FaCheck, FaExclamationTriangle } from "react-icons/fa";
 import useFetch from "use-http";
 import useWebSocket from "react-use-websocket";
 import ReactPaginate from "react-paginate";
@@ -9,8 +9,10 @@ import { timestampToDate } from "./format/displayDate";
 const hri = require("human-readable-ids").hri;
 const itemsPerPage = 10;
 
-const wsUrl = (channel) => `ws://localhost:8080/listen/${channel}`;
-const apiUrl = (channel) => `http://localhost:8080/api/${channel}`;
+const baseUrl = `http://${process.env.API_HOST}`;
+const baseWs = `ws://${process.env.API_HOST}`;
+const apiUrl = (channel) => `${baseUrl}/api/${channel || ""}`;
+const wsUrl = (channel) => `${baseWs}/listen/${channel}`;
 
 function App() {
   const [channel, setChannel] = useState(hri.random());
@@ -18,7 +20,12 @@ function App() {
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemCount, setItemCount] = useState(0);
-  const { get, response, loading } = useFetch(`http://localhost:8080`, {
+  const {
+    get,
+    delete: clearMessages,
+    response,
+    loading,
+  } = useFetch(baseUrl, {
     cachePolicy: "no-cache",
   });
 
@@ -48,8 +55,29 @@ function App() {
 
   const [socketUrl, setSocketUrl] = useState(wsUrl(channel));
 
+  const onClear = useCallback(async () => {
+    if (!itemCount) {
+      return;
+    }
+    await clearMessages(`api/${channel}`);
+    if (response.ok) {
+      setMessageHistory([]);
+      setItemOffset(0);
+      setPageCount(0);
+      setItemCount(0);
+    }
+  }, [
+    setMessageHistory,
+    setItemCount,
+    setPageCount,
+    clearMessages,
+    channel,
+    response,
+    itemCount,
+  ]);
+
   const onChannelCreate = useCallback(
-    async (e) => {
+    (e) => {
       if (!channel) {
         return;
       }
@@ -61,23 +89,25 @@ function App() {
 
   useWebSocket(socketUrl, {
     onMessage: (event) => {
-      setMessageHistory((prev) => {
-        if (prev.length >= 9) {
-          prev.length = 9;
-        }
-        let message = event.data;
-        try {
-          message = JSON.parse(message);
-        } catch (e) {}
-        return [
-          {
-            payload: message.payload,
-            failed: !message.ok,
-            created_at: Math.floor(Date.now() / 1000),
-          },
-          ...prev,
-        ];
-      });
+      // update messages for first page only
+      itemOffset === 0 &&
+        setMessageHistory((prev) => {
+          if (prev.length >= 9) {
+            prev.length = 9;
+          }
+          let message = event.data;
+          try {
+            message = JSON.parse(message);
+          } catch (e) {}
+          return [
+            {
+              payload: message.payload,
+              failed: !message.ok,
+              created_at: Math.floor(Date.now() / 1000),
+            },
+            ...prev,
+          ];
+        });
       setItemCount(itemCount + 1);
     },
   });
@@ -104,63 +134,69 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header"></header>
-      <div className="container grid justify-items-center">
-        <p>Use this url or paste existing</p>
-        <label htmlFor="channel">
-          <div className="h-14 w-96 text-gray-400 focus-within:text-black-600 focus:outline-none rounded-lg z-0 border-solid border-2 flex items-center relative">
-            <input
-              type="text"
-              name="channel"
-              id="channel"
-              placeholder={channel}
-              right={loading ? <Spinner /> : null}
-              className="pl-10 pr-20 h-full w-full"
-              value={channel}
-              onChange={(e) => e.target.value && setChannel(e.target.value)}
-            />
-            <div className="absolute right-0" onClick={onChannelCreate}>
-              <FaRedo
-                color="white"
-                className="h-10 w-20 right-0 text-white rounded-lg bg-green-500 hover:bg-green-600 p-2"
-              />
-            </div>
-          </div>
-        </label>
+      <div className="container max-w-full py-10 flex flex-row flex-wrap justify-center gap-x-3">
+        <p className="text-center w-full">Use this url or paste existing: </p>
+        <div className="h-14 w-80 focus-within:text-black-600 focus:outline-none rounded-lg z-0 border-solid border-2">
+          <input
+            type="text"
+            name="channel"
+            id="channel"
+            placeholder={channel}
+            right={loading ? <Spinner /> : null}
+            className="pl-10 pr-20 h-full w-full"
+            value={channel}
+            onChange={(e) => setChannel(e.target.value)}
+          />
+        </div>
+        <span
+          className="text-white mr-2 p-3 rounded-lg border-solid border-2 align-middle bg-green-500 hover:bg-green-600"
+          onClick={onChannelCreate}
+        >
+          generate new id
+        </span>
+        <span
+          className={`text-white mr-2 p-3 rounded-lg border-solid border-2 align-middle ${
+            itemCount ? "bg-red-500 hover:bg-red-600" : "bg-gray-500"
+          }`}
+          onClick={onClear}
+        >
+          clear
+        </span>
       </div>
-      <div className="max-w-6xl py-20 px-4 mx-auto grid justify-items-center">
+      <div className="py-20 shadow overflow-hidden">
         {messageHistory && messageHistory.length > 0 ? (
-          <table className="table-auto border-collapse border border-blue-400">
-            <thead className="space-x-1">
-              <tr className="bg-blue-600 px-auto py-auto">
-                <th className="max-w-xs border border-blue-400">
+          <table className="table-fixed border-collapse border border-blue-400 w-full">
+            <thead>
+              <tr className="bg-blue-600">
+                <th className="border border-blue-400 w-8">
                   <span className="text-gray-100 font-semibold">Status</span>
                 </th>
-                <th className="w-1/2 min-w-[50%] text-base max-w-prose border border-blue-400">
+                <th className="border border-blue-400 w-5/6">
                   <span className="text-gray-100 font-semibold">Payload</span>
                 </th>
-                <th className="max-w-max border border-blue-400">
+                <th className="border border-blue-400 w-12">
                   <span className="text-gray-100 font-semibold">
                     ReceivedAt
                   </span>
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-gray-200">
+            <tbody className="bg-gray-200 min-w-full">
               {messageHistory.map((message, index) => (
                 <tr key={index} className="bg-white">
                   <td className="border border-blue-400">
-                    {message.failed === true ? (
-                      <FaExclamationTriangle
-                        color="red"
-                        textDecoration="copy to clibpoard"
-                      />
-                    ) : (
-                      <FaCheck color="green" />
-                    )}
+                    <div className="self-center">
+                      {message.failed === true ? (
+                        <FaExclamationTriangle color="red" />
+                      ) : (
+                        <FaCheck color="green" />
+                      )}
+                    </div>
                   </td>
-                  <td className="border border-blue-400">
-                    <pre>{message.payload}</pre>
+                  <td className="border border-blue-400 max-w-lg h-32 break-all">
+                    <pre className="break-all block">
+                      {prettyPrint(message)}
+                    </pre>
                   </td>
                   <td className="border border-blue-400">
                     {timestampToDate(message.created_at)}
@@ -170,9 +206,16 @@ function App() {
             </tbody>
           </table>
         ) : (
-          <p>No data</p>
+          <p className="w-full text-center">
+            No data
+            <br />
+            Send POST requests to{" "}
+            <a href={apiUrl(channel)}>{apiUrl(channel)}</a>
+            <br />
+            Messages expire in 3 days.
+          </p>
         )}
-        <div id="container" className="flex">
+        <div id="container" className="flex flex-row justify-center">
           <ReactPaginate
             nextLabel="next >"
             onPageChange={handlePageClick}
@@ -199,5 +242,13 @@ function App() {
     </div>
   );
 }
+
+const prettyPrint = (message) => {
+  try {
+    return JSON.stringify(JSON.parse(message.payload), null, "\t");
+  } catch (_) {
+    return message.payload;
+  }
+};
 
 export default App;
