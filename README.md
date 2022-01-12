@@ -1,6 +1,6 @@
 # webhook-listener
 
-service to listen for webhooks persisting to redis
+Service to listen for webhooks, save them to redis, provide UI and API.
 
 ## Example
 
@@ -29,7 +29,7 @@ Webpage url: localhost:8080/
 
 ## How it works
 
-- subscribes to http post requests to http://localhost:8080/api/{channel}
+- subscribes to http post requests to http://www.webhook.monster/api/{channel}
 - publish message to go channel used as pubsub
 - notification module read messages from channel and send them via websockets to subscribers
 - repository module read messages from channel and store them in redis
