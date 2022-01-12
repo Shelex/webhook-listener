@@ -20,7 +20,7 @@ function App() {
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemCount, setItemCount] = useState(0);
-  const [expandedHeaders, setExpandedHeaders] = useState(false);
+  const [expandedHeaders, setExpandedHeaders] = useState([]);
   const {
     get,
     delete: clearMessages,
@@ -31,6 +31,7 @@ function App() {
   });
 
   const loadInitialMessages = useCallback(async () => {
+    setExpandedHeaders([]);
     const initialMessages = await get(
       `/api/${channel}?limit=${itemsPerPage}&offset=${itemOffset}`
     );
@@ -39,7 +40,7 @@ function App() {
         initialMessages.data &&
           initialMessages.data
             .sort((a, b) => b.created_at - a.created_at)
-            .map(({ payload,headers, failed, created_at }) => ({
+            .map(({ payload, headers, failed, created_at }) => ({
               payload,
               headers,
               failed,
@@ -49,14 +50,21 @@ function App() {
       setItemCount(initialMessages.count);
     }
     //await navigator.clipboard.writeText(apiUrl(channel));
-  }, [get, response, channel, setMessageHistory, itemOffset]);
+  }, [
+    get,
+    response,
+    channel,
+    setMessageHistory,
+    itemOffset,
+    setExpandedHeaders,
+  ]);
 
   useCallback(() => {
     setPageCount(Math.ceil(itemCount / itemsPerPage));
   }, [itemCount, setPageCount]);
 
   useEffect(() => {
-    loadInitialMessages().then(() => setSocketUrl(wsUrl(channel)))
+    loadInitialMessages().then(() => setSocketUrl(wsUrl(channel)));
   }, [loadInitialMessages, channel]);
 
   const [socketUrl, setSocketUrl] = useState(wsUrl(channel));
@@ -68,7 +76,7 @@ function App() {
       }
       e.preventDefault();
       setChannel(hri.random());
-      setSocketUrl(wsUrl(channel))
+      setSocketUrl(wsUrl(channel));
     },
     [setChannel, setSocketUrl, channel]
   );
@@ -94,8 +102,8 @@ function App() {
     itemCount,
   ]);
 
-  
 
+  
   useWebSocket(socketUrl, {
     onMessage: (event) => {
       // update messages for first page only
@@ -196,15 +204,28 @@ function App() {
                     </div>
                   </td>
                   <td className="border border-blue-400 max-w-lg h-32 break-all">
-                    <pre className="break-all block">
+                    <pre className="break-all block overflow-auto">
                       {prettyPrint(message.payload)}
                     </pre>
                   </td>
                   <td className="border border-blue-400 max-w-lg h-32 break-all">
-                    <p onClick={() => setExpandedHeaders(!expandedHeaders)} className="text-green-600 underline">toggle headers</p>
-                    <pre className={`break-all block ${!expandedHeaders && 'hidden'}`}>
-                      {prettyPrint(message.headers)}
-                    </pre>
+                    <p
+                      onClick={() =>
+                        setExpandedHeaders(
+                          expandedHeaders.includes(index)
+                            ? expandedHeaders.filter((h) => h !== index)
+                            : [index, ...expandedHeaders]
+                        )
+                      }
+                      className="text-green-600 underline"
+                    >
+                      toggle headers
+                    </p>
+                    {expandedHeaders.includes(index) && (
+                      <pre className="break-all block overflow-auto">
+                        {prettyPrint(message.headers)}
+                      </pre>
+                    )}
                   </td>
                   <td className="border border-blue-400">
                     {timestampToDate(message.created_at)}
@@ -261,10 +282,10 @@ const prettyPrint = (message) => {
 
 const debounce = (fn, wait) => {
   let timeout;
-  return function() {
+  return function () {
     const context = this;
     const args = arguments;
-    const later = function() {
+    const later = function () {
       timeout = null;
       fn.apply(context, args);
     };
