@@ -1,12 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "chi-swagger example APIs",
-        "title": "chi-swagger example APIs",
+        "description": "webhook listener api",
+        "title": "webhook listener API",
         "contact": {
             "name": "API Support",
             "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "email": "ovr.shevtsov@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -14,7 +14,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "webhook.monster",
     "basePath": "/",
     "paths": {
         "/api/{channel}": {
@@ -134,6 +134,9 @@
                 },
                 "failed": {
                     "type": "boolean"
+                },
+                "headers": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"

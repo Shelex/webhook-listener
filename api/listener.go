@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	stdHttp "net/http"
@@ -27,6 +28,8 @@ func RegisterHttpListener(app *app.App, addr string) (*http.Subscriber, error) {
 				buf.ReadFrom(request.Body)
 				body := buf.Bytes()
 
+				headers, _ := json.Marshal(request.Header)
+
 				channel := chi.URLParam(request, "channel")
 
 				message := message.NewMessage(
@@ -48,6 +51,7 @@ func RegisterHttpListener(app *app.App, addr string) (*http.Subscriber, error) {
 					}
 				}
 
+				message.Metadata.Set("headers", string(headers))
 				message.Metadata.Set("channel", channel)
 				message.Metadata.Set("statusOk", statusOk)
 

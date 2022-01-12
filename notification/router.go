@@ -44,6 +44,7 @@ func (n *Notification) Publish(messages <-chan *message.Message) {
 	for msg := range messages {
 		messageJson, _ := json.Marshal(map[string]interface{}{
 			"payload": string(msg.Payload),
+			"headers": string(msg.Metadata.Get("headers")),
 			"ok":      msg.Metadata.Get("statusOk") == "true",
 		})
 

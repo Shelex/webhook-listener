@@ -2,6 +2,10 @@
 
 service to listen for webhooks persisting to redis
 
+## Example
+
+[UI](http://webhook.monster/) and [Swagger](http://webhook.monster/swagger/)
+
 ## Start
 
 ```bash

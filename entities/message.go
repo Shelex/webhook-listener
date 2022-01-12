@@ -7,6 +7,7 @@ type Hook struct {
 	Created_at int64  `json:"created_at"`
 	Channel    string `json:"channel"`
 	Payload    string `json:"payload"`
+	Headers    string `json:"headers"`
 	Failed     bool   `json:"failed"`
 }
 

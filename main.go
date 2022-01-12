@@ -18,7 +18,7 @@ var (
 // @title webhook listener API
 // @version 1.0
 // @description webhook listener api
-// @host localhost:8080
+// @host webhook.monster
 // @BasePath /
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support

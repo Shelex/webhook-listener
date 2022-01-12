@@ -8,22 +8,24 @@ definitions:
         type: integer
       failed:
         type: boolean
+      headers:
+        type: string
       id:
         type: string
       payload:
         type: string
     type: object
-host: localhost:8080
+host: webhook.monster
 info:
   contact:
-    email: support@swagger.io
+    email: ovr.shevtsov@gmail.com
     name: API Support
     url: http://www.swagger.io/support
-  description: chi-swagger example APIs
+  description: webhook listener api
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: chi-swagger example APIs
+  title: webhook listener API
   version: "1.0"
 paths:
   /api/{channel}:

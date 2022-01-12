@@ -20,7 +20,7 @@ var doc = `{
         "contact": {
             "name": "API Support",
             "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "email": "ovr.shevtsov@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -149,6 +149,9 @@ var doc = `{
                 "failed": {
                     "type": "boolean"
                 },
+                "headers": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -172,11 +175,11 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:8080",
+	Host:        "webhook.monster",
 	BasePath:    "/",
 	Schemes:     []string{},
-	Title:       "chi-swagger example APIs",
-	Description: "chi-swagger example APIs",
+	Title:       "webhook listener API",
+	Description: "webhook listener api",
 }
 
 type s struct{}

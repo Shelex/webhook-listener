@@ -39,6 +39,7 @@ func Persist(messages <-chan *message.Message) {
 			Channel:    msg.Metadata.Get("channel"),
 			Created_at: time.Now().UTC().Unix(),
 			Payload:    string(msg.Payload),
+			Headers:    msg.Metadata.Get("headers"),
 		}
 
 		go DB.Add(hook)

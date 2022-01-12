@@ -20,6 +20,7 @@ function App() {
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
   const [itemCount, setItemCount] = useState(0);
+  const [expandedHeaders, setExpandedHeaders] = useState(false);
   const {
     get,
     delete: clearMessages,
@@ -31,35 +32,52 @@ function App() {
 
   const loadInitialMessages = useCallback(async () => {
     const initialMessages = await get(
-      `api/${channel}?limit=${itemsPerPage}&offset=${itemOffset}`
+      `/api/${channel}?limit=${itemsPerPage}&offset=${itemOffset}`
     );
     if (response.ok) {
       setMessageHistory(
         initialMessages.data &&
           initialMessages.data
             .sort((a, b) => b.created_at - a.created_at)
-            .map(({ payload, failed, created_at }) => ({
+            .map(({ payload,headers, failed, created_at }) => ({
               payload,
+              headers,
               failed,
               created_at,
             }))
       );
       setItemCount(initialMessages.count);
     }
-    await navigator.clipboard.writeText(apiUrl(channel));
+    //await navigator.clipboard.writeText(apiUrl(channel));
   }, [get, response, channel, setMessageHistory, itemOffset]);
 
   useCallback(() => {
     setPageCount(Math.ceil(itemCount / itemsPerPage));
   }, [itemCount, setPageCount]);
 
+  useEffect(() => {
+    loadInitialMessages().then(() => setSocketUrl(wsUrl(channel)))
+  }, [loadInitialMessages, channel]);
+
   const [socketUrl, setSocketUrl] = useState(wsUrl(channel));
+
+  const onChannelCreate = useCallback(
+    (e) => {
+      if (!channel) {
+        return;
+      }
+      e.preventDefault();
+      setChannel(hri.random());
+      setSocketUrl(wsUrl(channel))
+    },
+    [setChannel, setSocketUrl, channel]
+  );
 
   const onClear = useCallback(async () => {
     if (!itemCount) {
       return;
     }
-    await clearMessages(`api/${channel}`);
+    await clearMessages(`/api/${channel}`);
     if (response.ok) {
       setMessageHistory([]);
       setItemOffset(0);
@@ -76,16 +94,7 @@ function App() {
     itemCount,
   ]);
 
-  const onChannelCreate = useCallback(
-    (e) => {
-      if (!channel) {
-        return;
-      }
-      e.preventDefault();
-      setChannel(hri.random());
-    },
-    [setChannel, channel]
-  );
+  
 
   useWebSocket(socketUrl, {
     onMessage: (event) => {
@@ -102,6 +111,7 @@ function App() {
           return [
             {
               payload: message.payload,
+              headers: message.headers,
               failed: !message.ok,
               created_at: Math.floor(Date.now() / 1000),
             },
@@ -113,22 +123,11 @@ function App() {
   });
 
   useEffect(() => {
-    loadInitialMessages().then(() => setSocketUrl(wsUrl(channel)));
-  }, [loadInitialMessages, setSocketUrl, channel]);
-
-  useEffect(() => {
-    // Fetch items from another resources.
-    const endOffset = itemOffset + itemsPerPage;
-    console.log(`Loading items from ${itemOffset} to ${endOffset}`);
     setPageCount(Math.ceil(itemCount / itemsPerPage));
   }, [itemOffset, itemCount]);
 
-  // Invoke when user click to request another page.
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % itemCount;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
     setItemOffset(newOffset);
   };
 
@@ -145,7 +144,7 @@ function App() {
             right={loading ? <Spinner /> : null}
             className="pl-10 pr-20 h-full w-full"
             value={channel}
-            onChange={(e) => setChannel(e.target.value)}
+            onChange={(e) => debounce(setChannel(e.target.value), 1000)}
           />
         </div>
         <span
@@ -171,8 +170,11 @@ function App() {
                 <th className="border border-blue-400 w-8">
                   <span className="text-gray-100 font-semibold">Status</span>
                 </th>
-                <th className="border border-blue-400 w-5/6">
+                <th className="border border-blue-400 w-3/6">
                   <span className="text-gray-100 font-semibold">Payload</span>
+                </th>
+                <th className="border border-blue-400 w-2/6">
+                  <span className="text-gray-100 font-semibold">Headers</span>
                 </th>
                 <th className="border border-blue-400 w-12">
                   <span className="text-gray-100 font-semibold">
@@ -195,7 +197,13 @@ function App() {
                   </td>
                   <td className="border border-blue-400 max-w-lg h-32 break-all">
                     <pre className="break-all block">
-                      {prettyPrint(message)}
+                      {prettyPrint(message.payload)}
+                    </pre>
+                  </td>
+                  <td className="border border-blue-400 max-w-lg h-32 break-all">
+                    <p onClick={() => setExpandedHeaders(!expandedHeaders)} className="text-green-600 underline">toggle headers</p>
+                    <pre className={`break-all block ${!expandedHeaders && 'hidden'}`}>
+                      {prettyPrint(message.headers)}
                     </pre>
                   </td>
                   <td className="border border-blue-400">
@@ -245,10 +253,24 @@ function App() {
 
 const prettyPrint = (message) => {
   try {
-    return JSON.stringify(JSON.parse(message.payload), null, "\t");
+    return JSON.stringify(JSON.parse(message), null, "\t");
   } catch (_) {
-    return message.payload;
+    return message;
   }
+};
+
+const debounce = (fn, wait) => {
+  let timeout;
+  return function() {
+    const context = this;
+    const args = arguments;
+    const later = function() {
+      timeout = null;
+      fn.apply(context, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 };
 
 export default App;
