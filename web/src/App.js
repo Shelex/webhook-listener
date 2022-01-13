@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "./App.css";
-import { FaCheck, FaExclamationTriangle } from "react-icons/fa";
 import useFetch from "use-http";
 import useWebSocket from "react-use-websocket";
-import ReactPaginate from "react-paginate";
 import Spinner from "./components/Spinner";
+import ReactPaginate from "react-paginate";
+import Check from './components/Check'
+import ExclamationTriangle from './components/ExclamationTriangle'
 import { timestampToDate } from "./format/displayDate";
+import "./tailwind.css";
 const hri = require("human-readable-ids").hri;
 const itemsPerPage = 10;
 
@@ -102,8 +103,6 @@ function App() {
     itemCount,
   ]);
 
-
-  
   useWebSocket(socketUrl, {
     onMessage: (event) => {
       // update messages for first page only
@@ -197,9 +196,9 @@ function App() {
                   <td className="border border-blue-400">
                     <div className="self-center">
                       {message.failed === true ? (
-                        <FaExclamationTriangle color="red" />
+                        <ExclamationTriangle  />
                       ) : (
-                        <FaCheck color="green" />
+                        <Check  />
                       )}
                     </div>
                   </td>

@@ -25,6 +25,7 @@ web/node_modules
 
 # production
 web/build
+web/src/tailwind.css
 
 # misc
 .DS_Store

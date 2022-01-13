@@ -3,24 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tailwindcss/postcss7-compat": "2.2.7",
     "dayjs": "^1.10.7",
     "human-readable-ids": "^1.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1",
     "react-paginate": "^8.1.0",
     "react-scripts": "5.0.0",
     "react-use-websocket": "^2.9.1",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@2.2.7",
     "use-http": "^1.0.26",
     "web-vitals": "^2.1.3"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:tailwind": "npx tailwindcss build src/index.css -o src/tailwind.css"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +37,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.13"
   }
 }

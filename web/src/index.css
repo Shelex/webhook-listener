@@ -33,3 +33,7 @@
 .page-disabled {
   @apply pointer-events-none bg-gray-100 text-blue-400;
 }
+
+#container {
+  margin: 1rem;
+}
