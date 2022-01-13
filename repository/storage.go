@@ -40,6 +40,7 @@ func Persist(messages <-chan *message.Message) {
 			Created_at: time.Now().UTC().Unix(),
 			Payload:    string(msg.Payload),
 			Headers:    msg.Metadata.Get("headers"),
+			Failed:     msg.Metadata.Get("statusOk") != "true",
 		}
 
 		go DB.Add(hook)
