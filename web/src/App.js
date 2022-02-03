@@ -3,8 +3,8 @@ import useFetch from "use-http";
 import useWebSocket from "react-use-websocket";
 import Spinner from "./components/Spinner";
 import ReactPaginate from "react-paginate";
-import Check from './components/Check'
-import ExclamationTriangle from './components/ExclamationTriangle'
+import Check from "./components/Check";
+import ExclamationTriangle from "./components/ExclamationTriangle";
 import { timestampToDate } from "./format/displayDate";
 import "./tailwind.css";
 const hri = require("human-readable-ids").hri;
@@ -41,10 +41,10 @@ function App() {
         initialMessages.data &&
           initialMessages.data
             .sort((a, b) => b.created_at - a.created_at)
-            .map(({ payload, headers, failed, created_at }) => ({
+            .map(({ payload, headers, statusOk, created_at }) => ({
               payload,
               headers,
-              failed,
+              statusOk,
               created_at,
             }))
       );
@@ -119,7 +119,7 @@ function App() {
             {
               payload: message.payload,
               headers: message.headers,
-              failed: !message.ok,
+              statusOk: message.ok,
               created_at: Math.floor(Date.now() / 1000),
             },
             ...prev,
@@ -195,10 +195,10 @@ function App() {
                 <tr key={index} className="bg-white">
                   <td className="border border-blue-400">
                     <div className="self-center">
-                      {message.failed === true ? (
-                        <ExclamationTriangle  />
+                      {message.statusOk === true ? (
+                        <Check />
                       ) : (
-                        <Check  />
+                        <ExclamationTriangle />
                       )}
                     </div>
                   </td>

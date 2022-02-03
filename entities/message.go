@@ -8,7 +8,7 @@ type Hook struct {
 	Channel    string `json:"channel"`
 	Payload    string `json:"payload"`
 	Headers    string `json:"headers"`
-	Failed     bool   `json:"failed"`
+	StatusOK   bool   `json:"statusOk"`
 }
 
 func (i Hook) MarshalBinary() ([]byte, error) {

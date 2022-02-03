@@ -132,9 +132,6 @@
                 "created_at": {
                     "type": "integer"
                 },
-                "failed": {
-                    "type": "boolean"
-                },
                 "headers": {
                     "type": "string"
                 },
@@ -143,6 +140,9 @@
                 },
                 "payload": {
                     "type": "string"
+                },
+                "statusOk": {
+                    "type": "boolean"
                 }
             }
         }

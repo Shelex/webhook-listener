@@ -4,7 +4,7 @@ Service to listen for webhooks, save them to redis, provide UI and API.
 
 ## Example
 
-[UI](http://webhook.monster/) and [Swagger](http://webhook.monster/swagger/)
+[UI](https://webhook.monster/) and [Swagger](https://webhook.monster/swagger/)
 
 ## Start
 

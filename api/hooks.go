@@ -10,10 +10,6 @@ import (
 	"github.com/go-chi/render"
 )
 
-const (
-	defaultLimit = 50
-)
-
 type Controller struct {
 	app *app.App
 }
@@ -33,10 +29,6 @@ func (c *Controller) getMessages(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	limit, _ := strconv.Atoi(query.Get("limit"))
 	offset, _ := strconv.Atoi(query.Get("offset"))
-
-	if limit == 0 {
-		limit = defaultLimit
-	}
 
 	hooks, count, err := c.app.Repository.Get(channel, repository.Pagination{
 		Limit:  int64(limit),

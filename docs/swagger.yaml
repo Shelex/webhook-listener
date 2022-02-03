@@ -6,14 +6,14 @@ definitions:
         type: string
       created_at:
         type: integer
-      failed:
-        type: boolean
       headers:
         type: string
       id:
         type: string
       payload:
         type: string
+      statusOk:
+        type: boolean
     type: object
 host: webhook.monster
 info:

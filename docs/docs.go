@@ -146,9 +146,6 @@ var doc = `{
                 "created_at": {
                     "type": "integer"
                 },
-                "failed": {
-                    "type": "boolean"
-                },
                 "headers": {
                     "type": "string"
                 },
@@ -157,6 +154,9 @@ var doc = `{
                 },
                 "payload": {
                     "type": "string"
+                },
+                "statusOk": {
+                    "type": "boolean"
                 }
             }
         }
