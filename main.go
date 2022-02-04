@@ -1,9 +1,9 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
+	"net/http"
 
 	//_ "net/http/pprof"
 
@@ -44,22 +44,10 @@ func main() {
 	// clear expired items at 0 min every third hour
 	app.Cron.Schedule("0 */3 * * *", app.Repository.ClearExpired)
 
-	httpSubscriber, err := api.RegisterHttpListener(app, *httpAddr)
-	if err != nil {
-		log.Fatal(err)
+	log.Println("Starting HTTP server")
+
+	if err := http.ListenAndServe(*httpAddr, app.Router); err != nil {
+		log.Printf("Could not start HTTP server %s:\n", err)
 	}
 
-	messageRouter, err := api.RouteMessages(app, httpSubscriber)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	go messageRouter.Run(context.Background())
-	<-messageRouter.Running()
-
-	app.Logger.Info("Starting HTTP server", nil)
-
-	if err := httpSubscriber.StartHTTPServer(); err != nil {
-		app.Logger.Error("Could not start HTTP server", err, nil)
-	}
 }

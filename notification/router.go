@@ -1,14 +1,12 @@
 package notification
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 
-	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"github.com/Shelex/webhook-listener/entities"
+	"github.com/Shelex/webhook-listener/repository"
 	"github.com/go-chi/chi"
 	"gopkg.in/olahol/melody.v1"
 )
@@ -17,19 +15,17 @@ type Notification struct {
 	router *melody.Melody
 }
 
-func New(channel *gochannel.GoChannel) (*Notification, error) {
-	messages, err := channel.Subscribe(context.Background(), "webhooks")
-	if err != nil {
-		return nil, errors.New("failed to subscribe for messages")
-	}
-
+func New() *Notification {
 	notification := Notification{
 		router: melody.New(),
 	}
 
-	go notification.Publish(messages)
+	return &notification
+}
 
-	return &notification, nil
+func (n *Notification) Subscribe(pubSub repository.PubSub) {
+	messages := pubSub.Subscribe()
+	go n.Publish(messages)
 }
 
 func (n *Notification) Handle(w http.ResponseWriter, r *http.Request) {
@@ -40,12 +36,12 @@ func (n *Notification) Handle(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (n *Notification) Publish(messages <-chan *message.Message) {
-	for msg := range messages {
+func (n *Notification) Publish(messages <-chan *entities.Hook) {
+	for hook := range messages {
 		messageJson, _ := json.Marshal(map[string]interface{}{
-			"payload": string(msg.Payload),
-			"headers": string(msg.Metadata.Get("headers")),
-			"ok":      msg.Metadata.Get("statusOk") == "true",
+			"payload": hook.Payload,
+			"headers": hook.Headers,
+			"ok":      hook.StatusOK,
 		})
 
 		go n.router.BroadcastFilter(messageJson, func(s *melody.Session) bool {
@@ -53,9 +49,8 @@ func (n *Notification) Publish(messages <-chan *message.Message) {
 			if !ok {
 				return false
 			}
-			return msg.Metadata.Get("channel") == channel
+			return hook.Channel == channel
 		})
-		log.Printf("notification - acknowledged message %s", msg.UUID)
-		msg.Ack()
+		log.Printf("notification - acknowledged message %s", hook.ID)
 	}
 }

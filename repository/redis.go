@@ -18,16 +18,20 @@ type Redis struct {
 	client *redis.Client
 }
 
-func NewRedis() (Storage, error) {
-	rdb := redis.NewClient(&redis.Options{
+func NewRedisClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
 		Password: "",
 		DB:       0,
 		PoolSize: 100,
 	})
+}
+
+func NewStorage() (Storage, error) {
+	client := NewRedisClient()
 
 	DB = &Redis{
-		client: rdb,
+		client: client,
 	}
 
 	return DB, nil
