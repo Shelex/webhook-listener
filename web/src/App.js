@@ -10,8 +10,12 @@ import "./tailwind.css";
 const hri = require("human-readable-ids").hri;
 const itemsPerPage = 10;
 
-const baseUrl = `http://${process.env.API_HOST}`;
-const baseWs = `ws://${process.env.API_HOST}`;
+const host = process.env.REACT_APP_API_HOST;
+const protocol = process.env.REACT_APP_API_PROTOCOL;
+const isSecured = protocol.endsWith('s');
+
+const baseUrl = `${protocol}://${host}`;
+const baseWs = `ws${isSecured ? 's' : ''}://${host}`;
 const apiUrl = (channel) => `${baseUrl}/api/${channel || ""}`;
 const wsUrl = (channel) => `${baseWs}/listen/${channel}`;
 
