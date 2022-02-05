@@ -1,21 +1,17 @@
 package app
 
 import (
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/cors"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func ProvideRouter() *chi.Mux {
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	//router.Use(middleware.RequestID)
-	//router.Use(middleware.RealIP)
-	router.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedHeaders: []string{"Access-Control-Allow-Origin", "Content-Type", "Authorization"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	}).Handler)
-
+func ProvideRouter() *fiber.App {
+	router := fiber.New()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Access-Control-Allow-Origin, Origin, Content-Type, Accept",
+		AllowMethods: "GET, POST, DELETE, OPTIONS",
+	}))
+	//router.Use(logger.New())
 	return router
 }

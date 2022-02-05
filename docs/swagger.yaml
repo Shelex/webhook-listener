@@ -93,6 +93,10 @@ paths:
         in: query
         name: failUntil
         type: integer
+      - description: do not handle message by service and just reply with status code
+        in: query
+        name: justreply
+        type: boolean
       responses:
         "200":
           description: ""

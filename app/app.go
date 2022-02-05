@@ -7,13 +7,13 @@ import (
 	"github.com/Shelex/webhook-listener/repository"
 	"github.com/Shelex/webhook-listener/scheduler"
 
-	"github.com/go-chi/chi"
+	"github.com/gofiber/fiber/v2"
 )
 
 type App struct {
 	PubSub       repository.PubSub
 	Repository   repository.Storage
-	Router       *chi.Mux
+	Router       *fiber.App
 	Notification *notification.Notification
 	Cron         *scheduler.Scheduler
 }
@@ -28,9 +28,7 @@ func NewApp() (*App, error) {
 
 	repository.Subscribe(webhooks)
 
-	notifications := notification.New()
-
-	notifications.Subscribe(webhooks)
+	notifications := notification.New(webhooks)
 
 	router := ProvideRouter()
 

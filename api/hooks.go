@@ -1,9 +1,7 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,12 +9,10 @@ import (
 	"github.com/Shelex/webhook-listener/app"
 	"github.com/Shelex/webhook-listener/entities"
 	"github.com/Shelex/webhook-listener/repository"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
 )
-
-var buf = &bytes.Buffer{}
 
 type Controller struct {
 	app *app.App
@@ -32,11 +28,10 @@ type Controller struct {
 // @Param  limit query int  false  "pagination limit"
 // @Success 200 {array} []entities.Hook
 // @Router /api/{channel} [get]
-func (c *Controller) getMessages(w http.ResponseWriter, r *http.Request) {
-	channel := chi.URLParam(r, "channel")
-	query := r.URL.Query()
-	limit, _ := strconv.Atoi(query.Get("limit"))
-	offset, _ := strconv.Atoi(query.Get("offset"))
+func (c *Controller) getMessages(ctx *fiber.Ctx) error {
+	channel := ctx.Params("channel")
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	offset, _ := strconv.Atoi(ctx.Query("offset"))
 
 	hooks, count, err := c.app.Repository.Get(channel, repository.Pagination{
 		Limit:  int64(limit),
@@ -44,14 +39,15 @@ func (c *Controller) getMessages(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		w.WriteHeader(400)
-		w.Write([]byte(err.Error()))
+		ctx.SendStatus(400)
+		return err
 	} else {
-		render.JSON(w, r, map[string]interface{}{
+		ctx.JSON(map[string]interface{}{
 			"data":  hooks,
 			"count": count,
 		})
 	}
+	return nil
 }
 
 // deleteChannel godoc
@@ -61,13 +57,14 @@ func (c *Controller) getMessages(w http.ResponseWriter, r *http.Request) {
 // @Param  channel path string true "name"
 // @Success 200
 // @Router /api/{channel} [delete]
-func (c *Controller) deleteMessages(w http.ResponseWriter, r *http.Request) {
-	channel := chi.URLParam(r, "channel")
+func (c *Controller) deleteMessages(ctx *fiber.Ctx) error {
+	channel := ctx.Params("channel")
 	err := c.app.Repository.Delete(channel)
 	if err != nil {
-		w.WriteHeader(400)
-		w.Write([]byte(err.Error()))
+		ctx.SendStatus(400)
+		return err
 	}
+	return nil
 }
 
 // addMessage godoc
@@ -80,26 +77,24 @@ func (c *Controller) deleteMessages(w http.ResponseWriter, r *http.Request) {
 // @Param  justreply query boolean false  "do not handle message by service and just reply with status code"
 // @Success 200
 // @Router /api/{channel} [post]
-func (c *Controller) addMessage(w http.ResponseWriter, r *http.Request) {
-	justReply := r.URL.Query().Get("justreply")
+func (c *Controller) addMessage(ctx *fiber.Ctx) error {
+	justReply := ctx.Query("justreply")
 	if justReply != "" {
 		if justReply == "true" {
-			w.WriteHeader(http.StatusOK)
+			ctx.SendStatus(http.StatusOK)
 		} else {
-			w.WriteHeader(http.StatusServiceUnavailable)
+			ctx.SendStatus(http.StatusServiceUnavailable)
 		}
-		return
+		return nil
 	}
 
-	buf.Reset()
-	buf.ReadFrom(r.Body)
-	body := buf.Bytes()
+	body := ctx.Body()
 
-	headers, _ := json.Marshal(r.Header)
+	headers, _ := json.Marshal(ctx.GetReqHeaders())
 
-	channel := chi.URLParam(r, "channel")
+	channel := ctx.Params("channel")
 
-	failUntil := r.URL.Query().Get("failUntil")
+	failUntil := ctx.Query("failUntil")
 
 	hook := entities.Hook{
 		ID:         uuid.NewString(),
@@ -119,18 +114,27 @@ func (c *Controller) addMessage(w http.ResponseWriter, r *http.Request) {
 		if expirationTime.After(currentTime) {
 			hook.StatusOK = false
 		}
-		w.WriteHeader(http.StatusServiceUnavailable)
+		ctx.SendStatus(http.StatusServiceUnavailable)
 	}
 
 	c.app.PubSub.Publish(hook)
 
-	log.Println("have message for channel " + channel)
+	return nil
 }
 
 func RegisterControllers(app *app.App) {
 	controller := Controller{app}
-	app.Router.Post("/api/{channel}", controller.addMessage)
-	app.Router.Get("/api/{channel}", controller.getMessages)
-	app.Router.Delete("/api/{channel}", controller.deleteMessages)
-	app.Router.Get("/listen/{channel}", app.Notification.Handle)
+	app.Router.Post("/api/:channel", controller.addMessage)
+	app.Router.Get("/api/:channel", controller.getMessages)
+	app.Router.Delete("/api/:channel", controller.deleteMessages)
+	app.Router.Use("/listen", func(c *fiber.Ctx) error {
+		// IsWebSocketUpgrade returns true if the client
+		// requested upgrade to the WebSocket protocol.
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+	app.Router.Get("/listen/:channel", websocket.New(app.Notification.Handler))
 }

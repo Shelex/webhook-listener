@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"net/http"
 
 	//_ "net/http/pprof"
 
@@ -46,7 +45,7 @@ func main() {
 
 	log.Println("Starting HTTP server")
 
-	if err := http.ListenAndServe(*httpAddr, app.Router); err != nil {
+	if err := app.Router.Listen(*httpAddr); err != nil {
 		log.Printf("Could not start HTTP server %s:\n", err)
 	}
 

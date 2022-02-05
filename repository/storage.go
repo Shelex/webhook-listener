@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/Shelex/webhook-listener/entities"
@@ -15,7 +16,7 @@ type Pagination struct {
 }
 
 type Storage interface {
-	Add(hook entities.Hook) error
+	Add(hooks ...*entities.Hook) error
 	Get(channel string, pagination Pagination) ([]entities.Hook, int64, error)
 	Delete(channel string) error
 	ClearExpired() error
@@ -27,10 +28,49 @@ func Subscribe(pubSub PubSub) {
 }
 
 func Persist(messages <-chan *entities.Hook) {
+	batch := Batch{}
+
+	go batch.Process()
+
 	for hook := range messages {
-		go DB.Add(*hook)
-		log.Printf("storage - acknowledged message %s", hook.ID)
+		batch.Add(hook)
 	}
+}
+
+type Batch struct {
+	messages []*entities.Hook
+	mux      sync.Mutex
+	cancel   chan struct{}
+}
+
+func (batch *Batch) Add(message *entities.Hook) {
+	batch.mux.Lock()
+	batch.messages = append(batch.messages, message)
+	batch.mux.Unlock()
+}
+
+func (batch *Batch) Process() {
+	ticker := time.NewTicker(500 * time.Millisecond)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				batch.mux.Lock()
+				if len(batch.messages) > 0 {
+					if err := DB.Add(batch.messages...); err != nil {
+						log.Printf("storage - failed to save message: %s", err.Error())
+					}
+					log.Printf("redis: saved %d hooks", len(batch.messages))
+					batch.messages = nil
+				}
+				batch.mux.Unlock()
+			case <-batch.cancel:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }
 
 func GetExpiryDate() int64 {

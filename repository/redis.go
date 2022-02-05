@@ -37,12 +37,31 @@ func NewStorage() (Storage, error) {
 	return DB, nil
 }
 
-func (r *Redis) Add(hook entities.Hook) error {
-	hook.Created_at = time.Now().UTC().Unix()
-	return r.client.ZAddNX(ctx, hook.Channel, &redis.Z{
-		Score:  float64(hook.Created_at),
-		Member: hook,
-	}).Err()
+func (r *Redis) Add(hooks ...*entities.Hook) error {
+	members := make(map[string][]*redis.Z)
+	for _, hook := range hooks {
+		hook.Created_at = time.Now().UTC().Unix()
+
+		members[hook.Channel] = append(members[hook.Channel], &redis.Z{
+			Score:  float64(hook.Created_at),
+			Member: hook,
+		})
+	}
+
+	errors := ""
+
+	for channel, hooks := range members {
+		err := r.client.ZAddNX(ctx, channel, hooks...).Err()
+		if err != nil {
+			errors += err.Error() + ";"
+		}
+	}
+
+	if errors != "" {
+		return fmt.Errorf(errors)
+	}
+
+	return nil
 }
 
 func (r *Redis) Get(channel string, pagination Pagination) ([]entities.Hook, int64, error) {

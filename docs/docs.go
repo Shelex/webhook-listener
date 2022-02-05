@@ -105,6 +105,12 @@ var doc = `{
                         "description": "fail requests until timestamp",
                         "name": "failUntil",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "do not handle message by service and just reply with status code",
+                        "name": "justreply",
+                        "in": "query"
                     }
                 ],
                 "responses": {

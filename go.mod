@@ -3,16 +3,19 @@ module github.com/Shelex/webhook-listener
 go 1.16
 
 require (
-	github.com/go-chi/chi v4.0.2+incompatible
-	github.com/go-chi/cors v1.2.0
-	github.com/go-chi/render v1.0.1
+	github.com/fasthttp/websocket v1.4.6 // indirect
+	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.4
+	github.com/gofiber/fiber/v2 v2.26.0
+	github.com/gofiber/websocket/v2 v2.0.15
 	github.com/google/uuid v1.3.0
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/klauspost/compress v1.14.2 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mileusna/crontab v1.2.0
-	github.com/swaggo/http-swagger v1.1.2
-	github.com/swaggo/swag v1.7.6
-	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/olahol/melody.v1 v1.0.0-20170518105555-d52139073376
+	github.com/savsgio/gotils v0.0.0-20220201163454-d252f0a44d5b // indirect
+	github.com/swaggo/fiber-swagger v1.1.0
+	github.com/swaggo/swag v1.7.9
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
+	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
+	golang.org/x/tools v0.1.9 // indirect
 )
