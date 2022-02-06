@@ -18,6 +18,7 @@ const baseUrl = `${protocol}://${host}`;
 const baseWs = `ws${isSecured ? 's' : ''}://${host}`;
 const apiUrl = (channel) => `${baseUrl}/api/${channel || ""}`;
 const wsUrl = (channel) => `${baseWs}/listen/${channel}`;
+const swaggerUrl = `${baseUrl}/swagger/`
 
 function App() {
   const [channel, setChannel] = useState(hri.random());
@@ -174,6 +175,9 @@ function App() {
         </span>
       </div>
       <div className="py-20 shadow overflow-hidden">
+      {itemCount > 0 && (<div className="p-3">
+        total: {itemCount}
+      </div>)}
         {messageHistory && messageHistory.length > 0 ? (
           <table className="table-fixed border-collapse border border-blue-400 w-full">
             <thead>
@@ -245,6 +249,8 @@ function App() {
             <a href={apiUrl(channel)}>{apiUrl(channel)}</a>
             <br />
             Messages expire in 3 days.
+            <br />
+            <a className="text-green-700" href={swaggerUrl}>Swagger documentation</a>
           </p>
         )}
         <div id="container" className="flex flex-row justify-center">
