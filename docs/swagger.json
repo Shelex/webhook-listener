@@ -1,4 +1,7 @@
 {
+    "schemes": [
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "webhook listener api",
@@ -54,10 +57,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/entities.Hook"
-                                }
+                                "$ref": "#/definitions/entities.HooksByChannel"
                             }
                         }
                     }
@@ -83,7 +83,8 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "primitive"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     {
@@ -149,6 +150,20 @@
                 },
                 "statusOk": {
                     "type": "boolean"
+                }
+            }
+        },
+        "entities.HooksByChannel": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entities.Hook"
+                    }
                 }
             }
         }

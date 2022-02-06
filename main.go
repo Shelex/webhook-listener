@@ -17,6 +17,7 @@ var (
 // @title webhook listener API
 // @version 1.0
 // @description webhook listener api
+// @schemes https
 // @host webhook.monster
 // @BasePath /
 // @contact.name API Support

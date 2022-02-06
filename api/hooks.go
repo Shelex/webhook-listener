@@ -26,7 +26,7 @@ type Controller struct {
 // @Param  channel path string true "name"
 // @Param  offset query int  false  "pagination offset"
 // @Param  limit query int  false  "pagination limit"
-// @Success 200 {array} []entities.Hook
+// @Success 200 {array} entities.HooksByChannel
 // @Router /api/{channel} [get]
 func (c *Controller) getMessages(ctx *fiber.Ctx) error {
 	channel := ctx.Params("channel")
@@ -42,10 +42,12 @@ func (c *Controller) getMessages(ctx *fiber.Ctx) error {
 		ctx.SendStatus(400)
 		return err
 	} else {
-		ctx.JSON(map[string]interface{}{
-			"data":  hooks,
-			"count": count,
-		})
+		ctx.JSON(
+			entities.HooksByChannel{
+				Data:  hooks,
+				Count: count,
+			},
+		)
 	}
 	return nil
 }
@@ -72,7 +74,7 @@ func (c *Controller) deleteMessages(ctx *fiber.Ctx) error {
 // @Description post message
 // @Accept  json
 // @Param  channel path string true "name"
-// @Param  message body object true "message"
+// @Param  message body map[string]interface{} true "message" Example(entities.HookExample)
 // @Param  failUntil query int false  "fail requests until timestamp"
 // @Param  justreply query boolean false  "do not handle message by service and just reply with status code"
 // @Success 200

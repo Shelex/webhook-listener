@@ -11,6 +11,15 @@ type Hook struct {
 	StatusOK   bool   `json:"statusOk"`
 }
 
+type HooksByChannel struct {
+	Data  []Hook `json:"data"`
+	Count int64  `json:"count"`
+}
+
+type HookExample struct {
+	Hello interface{} `json:"hello" swaggertype:"string,object" example:"world"`
+}
+
 func (i Hook) MarshalBinary() ([]byte, error) {
 	return json.Marshal(i)
 }

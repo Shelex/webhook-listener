@@ -68,10 +68,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/entities.Hook"
-                                }
+                                "$ref": "#/definitions/entities.HooksByChannel"
                             }
                         }
                     }
@@ -97,7 +94,8 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "primitive"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     {
@@ -165,6 +163,20 @@ var doc = `{
                     "type": "boolean"
                 }
             }
+        },
+        "entities.HooksByChannel": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entities.Hook"
+                    }
+                }
+            }
         }
     }
 }`
@@ -183,7 +195,7 @@ var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "webhook.monster",
 	BasePath:    "/",
-	Schemes:     []string{},
+	Schemes:     []string{"https"},
 	Title:       "webhook listener API",
 	Description: "webhook listener api",
 }

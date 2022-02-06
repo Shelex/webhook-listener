@@ -15,6 +15,15 @@ definitions:
       statusOk:
         type: boolean
     type: object
+  entities.HooksByChannel:
+    properties:
+      count:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entities.Hook'
+        type: array
+    type: object
 host: webhook.monster
 info:
   contact:
@@ -68,9 +77,7 @@ paths:
           description: OK
           schema:
             items:
-              items:
-                $ref: '#/definitions/entities.Hook'
-              type: array
+              $ref: '#/definitions/entities.HooksByChannel'
             type: array
       summary: get messages for channel
     post:
@@ -88,7 +95,8 @@ paths:
         name: message
         required: true
         schema:
-          type: primitive
+          additionalProperties: true
+          type: object
       - description: fail requests until timestamp
         in: query
         name: failUntil
@@ -101,4 +109,6 @@ paths:
         "200":
           description: ""
       summary: post message
+schemes:
+- https
 swagger: "2.0"
