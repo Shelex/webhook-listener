@@ -4,7 +4,7 @@ Service to listen for webhooks, save them to redis, provide UI and API.
 
 ## Example
 
-[UI](https://webhook.monster/) and [Swagger](https://webhook.monster/swagger/)
+[UI](https://webhooks.shelex.dev/) and [Swagger](https://webhooks.shelex.dev/swagger/)
 
 ## Start
 
@@ -29,7 +29,7 @@ Webpage url: localhost:8080/
 
 ## How it works
 
-- accepts http post requests to `http://www.webhook.monster/api/{channel}`
+- accepts http post requests to `https://webhooks.shelex.dev/api/{channel}`
 - publish message to redis pubsub "webhooks" channel
 - notification module read messages by `webhooks` subscription and send them via websockets to subscribers
 - repository module read messages by `webhooks` subscription and store them in redis

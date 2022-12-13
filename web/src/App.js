@@ -4,6 +4,7 @@ import useWebSocket from "react-use-websocket";
 import Spinner from "./components/Spinner";
 import ReactPaginate from "react-paginate";
 import Check from "./components/Check";
+import Copy from "./components/Copy";
 import ExclamationTriangle from "./components/ExclamationTriangle";
 import { timestampToDate } from "./format/displayDate";
 import "./tailwind.css";
@@ -27,6 +28,7 @@ function App() {
   const [itemOffset, setItemOffset] = useState(0);
   const [itemCount, setItemCount] = useState(0);
   const [expandedHeaders, setExpandedHeaders] = useState([]);
+  const [copyUrl, setCopyUrl] = useState('');
   const {
     get,
     delete: clearMessages,
@@ -143,6 +145,28 @@ function App() {
     setItemOffset(newOffset);
   };
 
+  const copyToClipBoard = async (copyMe) => {
+    try {
+      await navigator.clipboard.writeText(copyMe);
+      setCopyUrl('Copied!');
+    } catch (err) {
+      setCopyUrl('Failed to copy!');
+    }
+  };
+
+  useEffect(() => {
+    if (!copyUrl) {
+      return;
+    }
+      const timer = setTimeout(() => {
+        setCopyUrl('')
+      }, 2000)
+  
+      return () => {
+        clearTimeout(timer)
+      }
+  }, [copyUrl, setCopyUrl]);
+
   return (
     <div className="App">
       <div className="container max-w-full py-10 flex flex-row flex-wrap justify-center gap-x-3">
@@ -246,7 +270,9 @@ function App() {
             No data
             <br />
             Send POST requests to{" "}
-            <a href={apiUrl(channel)}>{apiUrl(channel)}</a>
+            <p>{apiUrl(channel)} {" "}
+            <button onClick={() => copyToClipBoard(apiUrl(channel))}><Copy/>{copyUrl}</button>
+            </p>
             <br />
             Messages expire in 3 days.
             <br />

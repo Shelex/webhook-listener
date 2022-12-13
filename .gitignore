@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+bin
 
 # Test binary, built with `go test -c`
 *.test
@@ -15,7 +16,7 @@
 # vendor/
 simulation.js
 redis.config
-webhook-listener.pem
+ssh
 
 # Web
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -25,6 +26,7 @@ web/node_modules
 
 # production
 web/build
+web/prod.env
 web/src/tailwind.css
 
 # misc

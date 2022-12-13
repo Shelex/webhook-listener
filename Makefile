@@ -7,6 +7,11 @@ SHELL=/bin/bash
 start:
 	go run main.go
 
+.PHONY: build
+build:
+	rm -r bin
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o bin/webhook-listener
+
 .PHONY: simulation
 simulation:
 	k6 run simulation.js
