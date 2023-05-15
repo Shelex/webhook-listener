@@ -71,7 +71,7 @@ Pre-requisite: prepare `.env` and `web/.env` config files with proper values.
 
 ### Upload to vps
 
-```
+```bash
     scp -r ./web/build/* root@111.111.111.11:/var/www/webhooks.shelex.dev/html/
     scp ./bin/* root@111.111.111.11:/usr/bin
     scp .env root@111.111.111.11:/usr/bin
@@ -79,19 +79,19 @@ Pre-requisite: prepare `.env` and `web/.env` config files with proper values.
 
 ### Handle backend service with systemd
 
-    - 
-    ```bash
-        nano /etc/systemd/system/webhook-listener.service
-    ```
+ - create service file:
+```bash
+    nano /etc/systemd/system/webhook-listener.service
+```
 
-    - paste content from `configs/webhook-listener.service`
+ - paste content from `configs/webhook-listener.service`
         
-    - reload daemon, start service, check status
-        ```bash
-            systemctl daemon-reload
-            service webhook-listener start
-            service webhook-listener status
-        ```
+ - reload daemon, start service, check status
+```bash
+    systemctl daemon-reload
+    service webhook-listener start
+    service webhook-listener status
+```
 
 ### Basic setup for nginx and certbot
 
@@ -100,10 +100,10 @@ Pre-requisite: prepare `.env` and `web/.env` config files with proper values.
 
 ### Configure nginx
 
- - 
-    ```bash
-        sudo nano /etc/nginx/sites-enabled/webhooks.shelex.dev
-    ```
+ - create nginx config:
+ ```bash
+    sudo nano /etc/nginx/sites-enabled/webhooks.shelex.dev
+```
  - paste content from `configs/webhooks.shelex.dev`
  - remove default site from `/etc/nginx/sites-available`
  - make sure ports are not conflicting with apache (`sudo update-rc.d apache2 disable`)
