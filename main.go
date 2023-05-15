@@ -1,17 +1,14 @@
 package main
 
 import (
-	"flag"
 	"log"
+	"os"
 
 	//_ "net/http/pprof"
 
 	"github.com/Shelex/webhook-listener/api"
 	"github.com/Shelex/webhook-listener/app"
-)
-
-var (
-	httpAddr = flag.String("http", ":8080", "The address for the http subscriber")
+	"github.com/joho/godotenv"
 )
 
 // @title webhook listener API
@@ -26,7 +23,10 @@ var (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	flag.Parse()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err)
+	}
 
 	// download results for pprof profiler with "make prof"
 	// go func() {
@@ -46,7 +46,9 @@ func main() {
 
 	log.Println("Starting HTTP server")
 
-	if err := app.Router.Listen(*httpAddr); err != nil {
+	port := os.Getenv("PORT")
+
+	if err := app.Router.Listen(port); err != nil {
 		log.Printf("Could not start HTTP server %s:\n", err)
 	}
 

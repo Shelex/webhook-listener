@@ -1,0 +1,27 @@
+[Unit]
+Description=Webhook Listener
+ConditionPathExists=/usr/bin/webhook-listener
+After=network.target
+ 
+[Service]
+Type=simple
+#User=webhook-listener
+#Group=webhook-listener
+LimitNOFILE=1024sudo systemctl daemon-reload
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/usr/bin
+ExecStart=/usr/bin/webhook-listener
+
+# make sure log directory exists and owned by syslog
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/log/webhook-listener
+ExecStartPre=/bin/chown syslog:adm /var/log/webhook-listener
+ExecStartPre=/bin/chmod 755 /var/log/webhook-listener
+SyslogIdentifier=webhook-listener
+ 
+[Install]
+WantedBy=multi-user.target

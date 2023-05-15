@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -19,11 +20,17 @@ type Redis struct {
 }
 
 func NewRedisClient() *redis.Client {
+
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisPoolSizeEnv := os.Getenv("REDIS_POOL_SIZE")
+	redisPoolSize, _ := strconv.Atoi(redisPoolSizeEnv)
+
 	return redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
+		Addr:     redisHost,
+		Password: redisPassword,
 		DB:       0,
-		PoolSize: 100,
+		PoolSize: redisPoolSize,
 	})
 }
 
