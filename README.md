@@ -47,7 +47,7 @@ Ubuntu 22 is used.
 IP address `111.111.111.11` as an example.
 
 ```bash
-    ssh -i ssh/vultr root@111.111.111.11
+    ssh -i {{path_to_ssh_keys}} root@111.111.111.11
 ```
 
 ### Install deps
