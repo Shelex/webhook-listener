@@ -4,7 +4,7 @@ Service to listen for webhooks, save them to redis, provide UI and API.
 
 ## Example
 
-[UI](https://webhooks.shelex.dev/) and [Swagger](https://webhooks.shelex.dev/swagger/)
+[UI](https://webhook.shelex.dev/) and [Swagger](https://webhook.shelex.dev/swagger/)
 
 ## Start
 
@@ -29,7 +29,7 @@ Webpage url: localhost:8080/
 
 ## How it works
 
-- accepts http post requests to `https://webhooks.shelex.dev/api/{channel}`
+- accepts http post requests to `https://webhook.shelex.dev/api/{channel}`
 - publish message to redis pubsub "webhooks" channel
 - notification module read messages by `webhooks` subscription and send them via websockets to subscribers
 - repository module read messages by `webhooks` subscription and store them in redis
@@ -72,7 +72,7 @@ Pre-requisite: prepare `.env` and `web/.env` config files with proper values.
 ### Upload to vps
 
 ```bash
-    scp -r ./web/build/* root@111.111.111.11:/var/www/webhooks.shelex.dev/html/
+    scp -r ./web/build/* root@111.111.111.11:/var/www/webhook.shelex.dev/html/
     scp ./bin/* root@111.111.111.11:/usr/bin
     scp .env root@111.111.111.11:/usr/bin
 ```
@@ -96,14 +96,14 @@ Pre-requisite: prepare `.env` and `web/.env` config files with proper values.
 ### Basic setup for nginx and certbot
 
  - https://www.nginx.com/blog/using-free-ssltls-certificates-from-lets-encrypt-with-nginx/
- - `sudo certbot --nginx -d webhooks.shelex.dev -d www.webhooks.shelex.dev`
+ - `sudo certbot --nginx -d webhook.shelex.dev -d www.webhook.shelex.dev`
 
 ### Configure nginx
 
  - create nginx config:
  ```bash
-    sudo nano /etc/nginx/sites-enabled/webhooks.shelex.dev
+    sudo nano /etc/nginx/sites-enabled/webhook.shelex.dev
 ```
- - paste content from `configs/webhooks.shelex.dev`
+ - paste content from `configs/webhook.shelex.dev`
  - remove default site from `/etc/nginx/sites-available`
  - make sure ports are not conflicting with apache (`sudo update-rc.d apache2 disable`)

@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.26.0
 	github.com/gofiber/websocket/v2 v2.0.15
 	github.com/google/uuid v1.3.0
-	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mileusna/crontab v1.2.0

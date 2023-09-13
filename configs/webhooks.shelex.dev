@@ -1,28 +1,24 @@
 server {
         listen 80;
         listen [::]:80;
-        server_name webhooks.shelex.dev;
+        server_name webhook.shelex.dev;
 }
 
 server {
         listen 443 ssl;
         listen [::]:443 ssl;
-        server_name webhooks.shelex.dev;
+        server_name webhook.shelex.dev;
 
-        ssl_certificate /etc/letsencrypt/live/www.webhooks.shelex.dev/fullchain.pem; # managed by Certbot
-        ssl_certificate_key /etc/letsencrypt/live/www.webhooks.shelex.dev/privkey.pem; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/webhook.shelex.dev-0001/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/webhook.shelex.dev-0001/privkey.pem; # managed by Certbot
         include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-        add_header Strict-Transport-Security "max-age=31536000" always; # managed by Certbot
-        ssl_trusted_certificate /etc/letsencrypt/live/www.webhooks.shelex.dev/chain.pem; # managed by Certbot
-        ssl_stapling on; # managed by Certbot
-        ssl_stapling_verify on; # managed by Certbot
 
-        root /var/www/webhooks.shelex.dev/html;
+        root /var/www/webhook.shelex.dev/html;
         index index.html index.htm;
 
         location / {
-                root /var/www/webhooks.shelex.dev/html/;
+                root /var/www/webhook.shelex.dev/html/;
                 index index.html;
                 try_files $uri /index.html$is_args$args =404;
         }
