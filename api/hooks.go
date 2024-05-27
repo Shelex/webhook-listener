@@ -126,9 +126,11 @@ func (c *Controller) addMessage(ctx *fiber.Ctx) error {
 
 func RegisterControllers(app *app.App) {
 	controller := Controller{app}
-	app.Router.Post("/api/:channel", controller.addMessage)
-	app.Router.Get("/api/:channel", controller.getMessages)
-	app.Router.Delete("/api/:channel", controller.deleteMessages)
+	api := app.Router.Group("/api")
+	channel := "/:channel"
+	api.Post(channel, controller.addMessage)
+	api.Get(channel, controller.getMessages)
+	api.Delete(channel, controller.deleteMessages)
 	app.Router.Use("/listen", func(c *fiber.Ctx) error {
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.

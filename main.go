@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -25,7 +26,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
+		log.Printf("Error loading .env file: %s", err)
 	}
 
 	// download results for pprof profiler with "make prof"
@@ -46,10 +47,10 @@ func main() {
 
 	log.Println("Starting HTTP server")
 
+	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
 
-	if err := app.Router.Listen(port); err != nil {
+	if err := app.Router.Listen(fmt.Sprintf("%s:%s", host, port)); err != nil {
 		log.Printf("Could not start HTTP server %s:\n", err)
 	}
-
 }
