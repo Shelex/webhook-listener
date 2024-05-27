@@ -24,7 +24,7 @@ definitions:
           $ref: '#/definitions/entities.Hook'
         type: array
     type: object
-host: webhook.monster
+host: webhook-api.shelex.dev
 info:
   contact:
     email: ovr.shevtsov@gmail.com
@@ -50,7 +50,7 @@ paths:
         type: string
       responses:
         "200":
-          description: ""
+          description: OK
       summary: delete channel
     get:
       consumes:
@@ -107,7 +107,7 @@ paths:
         type: boolean
       responses:
         "200":
-          description: ""
+          description: OK
       summary: post message
 schemes:
 - https

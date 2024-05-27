@@ -16,7 +16,7 @@ import (
 // @version 1.0
 // @description webhook listener api
 // @schemes https
-// @host webhook.monster
+// @host webhook-api.shelex.dev
 // @BasePath /
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support

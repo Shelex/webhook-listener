@@ -17,7 +17,7 @@
         },
         "version": "1.0"
     },
-    "host": "webhook.monster",
+    "host": "webhook-api.shelex.dev",
     "basePath": "/",
     "paths": {
         "/api/{channel}": {
@@ -102,7 +102,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     }
                 }
             },
@@ -123,7 +123,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     }
                 }
             }
