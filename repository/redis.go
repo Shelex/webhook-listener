@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/Shelex/webhook-listener/entities"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 var ctx = context.Background()
@@ -20,18 +20,13 @@ type Redis struct {
 }
 
 func NewRedisClient() *redis.Client {
+	url := os.Getenv("REDIS_URL")
+	opts, err := redis.ParseURL(url)
+	if err != nil {
+		log.Fatalf("could not parse redis url: %s", err)
+	}
 
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPassword := os.Getenv("REDIS_PASSWORD")
-	redisPoolSizeEnv := os.Getenv("REDIS_POOL_SIZE")
-	redisPoolSize, _ := strconv.Atoi(redisPoolSizeEnv)
-
-	return redis.NewClient(&redis.Options{
-		Addr:     redisHost,
-		Password: redisPassword,
-		DB:       0,
-		PoolSize: redisPoolSize,
-	})
+	return redis.NewClient(opts)
 }
 
 func NewStorage() (Storage, error) {
@@ -45,11 +40,11 @@ func NewStorage() (Storage, error) {
 }
 
 func (r *Redis) Add(hooks ...*entities.Hook) error {
-	members := make(map[string][]*redis.Z)
+	members := make(map[string][]redis.Z)
 	for _, hook := range hooks {
 		hook.Created_at = time.Now().UTC().Unix()
 
-		members[hook.Channel] = append(members[hook.Channel], &redis.Z{
+		members[hook.Channel] = append(members[hook.Channel], redis.Z{
 			Score:  float64(hook.Created_at),
 			Member: hook,
 		})

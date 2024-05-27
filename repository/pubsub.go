@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/Shelex/webhook-listener/entities"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type PubSub interface {
